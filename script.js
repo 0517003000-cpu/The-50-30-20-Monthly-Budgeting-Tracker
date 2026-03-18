@@ -1,138 +1,117 @@
-<!DOCTYPE html>
-<html>
-<head>
+function num(v){
+return parseInt(v.replace(/\./g,'')) || 0
+}
 
-<title>Monthly Budget Tracker</title>
-<link rel="stylesheet" href="style.css">
+function calculate(){
 
-</head>
+let eTotal=0
+let nTotal=0
+let sTotal=0
 
-<body>
+document.querySelectorAll(".essential").forEach(i=>{
+eTotal+=num(i.value)
+})
 
-<h1>Monthly Budget Tracker</h1>
+document.querySelectorAll(".non").forEach(i=>{
+nTotal+=num(i.value)
+})
 
-<div class="top">
+document.querySelectorAll(".save").forEach(i=>{
+sTotal+=num(i.value)
+})
 
-Name:
-<input id="name" class="short">
+document.getElementById("essentialTotal").innerText=eTotal
+document.getElementById("nonTotal").innerText=nTotal
+document.getElementById("saveTotal").innerText=sTotal
 
-Monthly Income:
-<input id="income" class="short">
+checkBudget(eTotal,nTotal,sTotal)
 
-Month:
-<select id="monthSelect"></select>
+saveData()
 
-<button onclick="newMonth()">New Month</button>
+}
 
-</div>
+function status(spend,budget){
 
-<a href="https://0517003000-cpu.github.io/Monthly-Budget-Calc/" target="_blank">
-Open Monthly Budget Calculator
-</a>
+if(budget==0) return "-"
 
-<div class="tables">
+let p=spend/budget
 
-<!-- ESSENTIAL -->
+if(p>1) return "Over Budget"
+if(p>0.9) return "Tight Budget"
+return "Under Budget"
 
-<table>
+}
 
-<tr><th colspan="2">Essential Expenses</th></tr>
+function checkBudget(e,n,s){
 
-<tr>
-<td>Available Income</td>
-<td><input id="essentialBudget"></td>
-</tr>
+let eBudget=num(document.getElementById("essentialBudget").value)
+let nBudget=num(document.getElementById("nonBudget").value)
+let sBudget=num(document.getElementById("saveBudget").value)
 
-<tr><td contenteditable="true">Expense</td><td><input class="essential"></td></tr>
-<tr><td contenteditable="true">Expense</td><td><input class="essential"></td></tr>
-<tr><td contenteditable="true">Expense</td><td><input class="essential"></td></tr>
-<tr><td contenteditable="true">Expense</td><td><input class="essential"></td></tr>
-<tr><td contenteditable="true">Expense</td><td><input class="essential"></td></tr>
+let eStatus=status(e,eBudget)
+let nStatus=status(n,nBudget)
+let sStatus=status(s,sBudget)
 
-<tr>
-<td>Total Spending</td>
-<td id="essentialTotal">0</td>
-</tr>
+document.getElementById("essentialStatus").innerText=eStatus
+document.getElementById("nonStatus").innerText=nStatus
+document.getElementById("saveStatus").innerText=sStatus
 
-<tr>
-<td>Status</td>
-<td id="essentialStatus">-</td>
-</tr>
+generateAdvice(eStatus,nStatus,sStatus)
 
-</table>
+}
 
+function generateAdvice(e,n,s){
 
-<!-- NON ESSENTIAL -->
+let box=document.getElementById("advice")
 
-<table>
+box.innerHTML=`
 
-<tr><th colspan="2">Non Essential Expenses</th></tr>
+<b>Essential Expenses</b><br>
+Status: ${e}<br>
+Solutions / Recommendations:<br>
+• Review housing, food, and transport costs.<br>
+• Look for cheaper alternatives.<br>
+• Reduce unnecessary essential spending.<br><br>
 
-<tr>
-<td>Available Income</td>
-<td><input id="nonBudget"></td>
-</tr>
+<b>Non Essential Expenses</b><br>
+Status: ${n}<br>
+Solutions / Recommendations:<br>
+• Reduce entertainment spending.<br>
+• Cancel unused subscriptions.<br>
+• Avoid impulse purchases.<br><br>
 
-<tr><td contenteditable="true">Expense</td><td><input class="non"></td></tr>
-<tr><td contenteditable="true">Expense</td><td><input class="non"></td></tr>
-<tr><td contenteditable="true">Expense</td><td><input class="non"></td></tr>
-<tr><td contenteditable="true">Expense</td><td><input class="non"></td></tr>
-<tr><td contenteditable="true">Expense</td><td><input class="non"></td></tr>
+<b>Savings</b><br>
+Status: ${s}<br>
+Recommendations:<br>
+• Try saving at least 20% of income.<br>
+• Build an emergency fund.<br>
+• Set long-term financial goals.
 
-<tr>
-<td>Total Spending</td>
-<td id="nonTotal">0</td>
-</tr>
+`
 
-<tr>
-<td>Status</td>
-<td id="nonStatus">-</td>
-</tr>
+}
 
-</table>
+document.querySelectorAll("input").forEach(i=>{
+i.addEventListener("input",calculate)
+})
 
+function newMonth(){
 
-<!-- SAVINGS -->
+let m=prompt("Enter month name")
 
-<table>
+if(!m) return
 
-<tr><th colspan="2">Savings</th></tr>
+let select=document.getElementById("monthSelect")
 
-<tr>
-<td>Available Income</td>
-<td><input id="saveBudget"></td>
-</tr>
+let option=document.createElement("option")
+option.value=m
+option.text=m
 
-<tr><td contenteditable="true">Saving</td><td><input class="save"></td></tr>
-<tr><td contenteditable="true">Saving</td><td><input class="save"></td></tr>
-<tr><td contenteditable="true">Saving</td><td><input class="save"></td></tr>
-<tr><td contenteditable="true">Saving</td><td><input class="save"></td></tr>
-<tr><td contenteditable="true">Saving</td><td><input class="save"></td></tr>
+select.appendChild(option)
 
-<tr>
-<td>Total</td>
-<td id="saveTotal">0</td>
-</tr>
+localStorage.setItem("month",m)
 
-<tr>
-<td>Status</td>
-<td id="saveStatus">-</td>
-</tr>
+}
 
-</table>
-
-</div>
-
-
-<div class="adviceBox">
-
-<h2>Budget Advice</h2>
-
-<div id="advice"></div>
-
-</div>
-
-<script src="script.js"></script>
-
-</body>
-</html>
+function saveData(){
+localStorage.setItem("budgetData",document.body.innerHTML)
